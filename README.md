@@ -33,3 +33,14 @@ load("@scala_things//dependencies:dependencies.bzl", "install_dependencies", "ma
 scala_versions = make_scala_versions("2", "12", "10")
 install_dependencies(some_dependencies, scala_versions)
 ```
+## Metals integration
+I use metals with vim.
+Bazel cannot generate bloop generation as of now so there is also script which can emit bloop configuration if `rules_jvm_external` are used.
+The script should be invoked as follows.
+```starlark
+bazel run @scala_things//metals-config:metals-config -- bloop_project_name scala_version a_bloop_json_config the_directory_with_the_bazel_workspace
+```
+A morke concrete use could look like the following.
+```starlark
+bazel run @scala_things//metals-config:metals-config -- root 2.12.10 /home/valde/Git/some-project/.bloop/root.json /home/valde/Git/some-project/contract
+```
