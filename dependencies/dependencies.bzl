@@ -1,6 +1,5 @@
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven", "parse")
-load("//:scala_version.bzl", "artifact_version", "scala_patch")
 
 def _java_to_maven(group, name, version):
     art = parse.parse_maven_coordinate(group + ":" + name + ":" + version)
@@ -53,7 +52,7 @@ def make_scala_versions(major, minor, patch):
       patch: patch
   }
 
-def install(deps, scala_versions):
+def install_dependencies(deps, scala_versions):
     as_mvn = [_dep_to_java(d, scala_versions) for d in deps]
     maven_install(
         artifacts = as_mvn,
