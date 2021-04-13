@@ -31,5 +31,5 @@ At some point the effectful installation must be invoked.
 load("@scala_things//dependencies:dependencies.bzl", "install_dependencies", "make_scala_versions")
 
 scala_versions = make_scala_versions("2", "12", "10")
-install_dependencies(some_dependencies, )
+install_dependencies(some_dependencies, scala_versions)
 ```
