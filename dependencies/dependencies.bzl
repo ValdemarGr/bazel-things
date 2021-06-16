@@ -37,12 +37,12 @@ def java_dependency(group, name, version):
 
 def scala_dependency(group, name, version):
   j = java_dependency(group, name, version)
-  j[tag] = _scala_dependency_tag
+  j["tag"] = _scala_dependency_tag
   return j
 
 def scala_fullver_dependency(group, name, version):
   j = java_dependency(group, name, version)
-  j[tag] = _scala_fullver_dependency_tag
+  j["tag"] = _scala_fullver_dependency_tag
   return j
 
 def make_scala_versions(major, minor, patch):
