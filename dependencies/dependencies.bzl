@@ -17,15 +17,15 @@ _scala_fullver_dependency_tag = "scala_fullver_dependency"
 _java_dependency_tag = "java_dependency"
 
 def _normalize_version(dep, scala_versions):
-  if (_scala_dependency_tag == dep.tag):
-    return dep.version + "_" + scala_versions.major + "_" + scala_versions.minor
+  if (_scala_dependency_tag == dep["tag"]):
+    return dep["version"] + "_" + scala_versions["major"] + "_" + scala_versions["minor"]
   elif (_scala_fullver_dependency_tag):
-    return dep.version + "_" + scala_versions.major + "_" + scala_versions.minor + "_" + scala_versions.patch
+    return dep["version"] + "_" + scala_versions["major"] + "_" + scala_versions["minor"] + "_" + scala_versions["patch"]
   else:
-    return dep.version
+    return dep["version"]
 
 def _dep_to_java(dep, scala_versions):
-  return _java_to_maven(dep.group, dep.name, _normalize_version(dep, scala_versions))
+  return _java_to_maven(dep["group"], dep["name"], _normalize_version(dep, scala_versions))
 
 def java_dependency(group, name, version):
   return {
