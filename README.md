@@ -18,7 +18,7 @@ bazel_things_dependencies()
 ```
 Then dependencies can be declared anywhere as follows.
 ```starlark
-load("@scala_things//dependencies:dependencies.bzl", "java_dependency", "scala_dependency", "scala_fullver_dependency")
+load("@scala_things//:dependencies/dependencies.bzl", "java_dependency", "scala_dependency", "scala_fullver_dependency")
 
 some_dependencies = [
   scala_dependency("org.typelevel", "cats-effect", "3.0.1"),
@@ -28,7 +28,7 @@ some_dependencies = [
 ```
 At some point the effectful installation must be invoked.
 ```starlark
-load("@scala_things//dependencies:dependencies.bzl", "install_dependencies", "make_scala_versions")
+load("@scala_things//:dependencies/dependencies.bzl", "install_dependencies", "make_scala_versions")
 
 scala_versions = make_scala_versions("2", "12", "10")
 install_dependencies(some_dependencies, scala_versions)
