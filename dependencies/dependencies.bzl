@@ -28,12 +28,13 @@ def _dep_to_java(dep, scala_versions):
   return _java_to_maven(dep.group, dep.name, _normalize_version(dep, scala_versions))
 
 def java_dependency(group, name, version):
-  return {
-      tag: _java_dependency_tag,
+  out = {
       group: group,
       name: name,
       version: version
   }
+  out["tag"] = _java_dependency_tag
+  return out
 
 def scala_dependency(group, name, version):
   j = java_dependency(group, name, version)
