@@ -13,7 +13,7 @@ http_archive(
     url = "https://github.com/valdemargr/bazel-things/archive/%s.zip" % commitSha,
 )
 
-load("@scala_things//dependencies:init.bzl", "bazel_things_dependencies")
+load("@scala_things//:dependencies/init.bzl", "bazel_things_dependencies")
 bazel_things_dependencies()
 ```
 Then dependencies can be declared anywhere as follows.
