@@ -1,8 +1,9 @@
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven", "parse")
+load("@bazel_skylib//lib:partial.bzl", "partial")
 
-def apply_scala_version(scala_versions):
-    return lambda s: s + "_" + scala_versions["major"] + "_" + scala_versions["minor"]
+def apply_scala_version(scala_versions, s):
+    return s + "_" + scala_versions["major"] + "_" + scala_versions["minor"]
 
 def _java_to_maven(group, name, version):
     art = parse.parse_maven_coordinate(group + ":" + name + ":" + version)
