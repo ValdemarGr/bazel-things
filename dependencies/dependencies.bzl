@@ -29,7 +29,7 @@ def _add_scala_vertag(name, scala_versions):
   elif (_scala_fullver_dependency_tag == dep["tag"]):
     return name + "_" + scala_versions["major"] + "." + scala_versions["minor"] + "." + scala_versions["patch"]
   else:
-    return name +
+    return name
 
 def _dep_to_java(dep, scala_versions):
   return _java_to_maven(dep["group"], _add_scala_vertag(dep["name"]), dep["version"])
