@@ -23,16 +23,16 @@ _scala_dependency_tag = "scala_dependency"
 _scala_fullver_dependency_tag = "scala_fullver_dependency"
 _java_dependency_tag = "java_dependency"
 
-def _add_scala_vertag(name, scala_versions):
-  if (_scala_dependency_tag == dep["tag"]):
+def _add_scala_vertag(name, tag, scala_versions):
+  if (_scala_dependency_tag == tag):
     return name + "_" + scala_versions["major"] + "." + scala_versions["minor"]
-  elif (_scala_fullver_dependency_tag == dep["tag"]):
+  elif (_scala_fullver_dependency_tag == tag):
     return name + "_" + scala_versions["major"] + "." + scala_versions["minor"] + "." + scala_versions["patch"]
   else:
     return name
 
 def _dep_to_java(dep, scala_versions):
-  return _java_to_maven(dep["group"], _add_scala_vertag(dep["name"]), dep["version"])
+  return _java_to_maven(dep["group"], _add_scala_vertag(dep["name"], dep["tag"], scala_versions), dep["version"])
 
 def java_dependency(group, name, version):
   return {
