@@ -7,6 +7,7 @@ parser.add_argument("--name", type=str)
 parser.add_argument("--path", type=str)
 parser.add_argument("--home", type=str)
 parser.add_argument("--ver", type=str)
+parser.add_argument("--compiler", type=str)
 
 args = parser.parse_args()
 
@@ -15,6 +16,8 @@ deps = sys.stdin.read()
 asLst = deps.split()
 
 absPath = args.path + "/" + args.name
+
+comp = args.compiler
 
 sources = list(filter(lambda x: x.endswith("sources.jar"), asLst))
 nonSources = list(filter(lambda x: not x.endswith("sources.jar"), asLst))
@@ -73,14 +76,7 @@ out = {
             "options":[
                 f"-Xplugin:{p}" for p in found_plugins
                 ],
-            "jars": [
-                # args.home + "/.sbt/boot/scala-2.12.10/lib/scala-reflect.jar",
-                args.home + "/.sbt/boot/scala-2.12.10/lib/jansi.jar",
-                # args.home + "/.sbt/boot/scala-2.12.10/lib/scala-library.jar",
-                args.home + "/.sbt/boot/scala-2.12.10/lib/scala-xml_2.12.jar",
-                args.home + "/.sbt/boot/scala-2.12.10/lib/jline.jar",
-                # args.home + "/.sbt/boot/scala-2.12.10/lib/scala-compiler.jar"
-            ] + defas
+            "jars": comp.split()
         },
         "directory" : absPath,
         "workspaceDir" : args.path,
