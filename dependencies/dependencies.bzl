@@ -1,6 +1,11 @@
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven", "parse")
 
+def apply_scala_version(scala_versions):
+    def f(s): 
+        return s + "_" + scala_versions["major"] + "_" + scala_versions["minor"]
+    return f
+
 def _java_to_maven(group, name, version):
     art = parse.parse_maven_coordinate(group + ":" + name + ":" + version)
     return maven.artifact(
