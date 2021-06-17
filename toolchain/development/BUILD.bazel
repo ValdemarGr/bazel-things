@@ -1,3 +1,5 @@
+# //toolchains/BUILD
+load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_toolchain(
     name = "development-toolchain",
