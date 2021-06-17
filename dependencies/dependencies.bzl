@@ -26,7 +26,7 @@ _java_dependency_tag = "java_dependency"
 def _normalize_version(dep, scala_versions):
   if (_scala_dependency_tag == dep["tag"]):
     return dep["version"] + "_" + scala_versions["major"] + "." + scala_versions["minor"]
-  elif (_scala_fullver_dependency_tag):
+  elif (_scala_fullver_dependency_tag == dep["tag"]):
     return dep["version"] + "_" + scala_versions["major"] + "." + scala_versions["minor"] + "." + scala_versions["patch"]
   else:
     return dep["version"]
