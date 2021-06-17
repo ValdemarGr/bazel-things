@@ -2,6 +2,9 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven", "parse")
 load("@bazel_skylib//lib:partial.bzl", "partial")
 
+def to_string_version(scala_versions):
+    return scala_versions["major"] + "_" + scala_versions["minor"] + "_" + scala_versions["patch"]
+
 def apply_scala_version(scala_versions, s):
     return s + "_" + scala_versions["major"] + "_" + scala_versions["minor"]
 
