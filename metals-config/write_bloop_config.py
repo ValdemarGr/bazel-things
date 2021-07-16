@@ -72,7 +72,7 @@ out = {
         "scala": {
             "organization": "org.scala-lang",
             "name": "scala-compiler",
-            "version": "2.12.10",
+            "version": args.ver,
             "options":[
                 f"-Xplugin:{p}" for p in found_plugins
                 ],
@@ -87,7 +87,7 @@ out = {
         "dependencies":[],
         "classpath": nonSources,
         "out": args.path + "/.bloop/" + args.name,
-        "classesDir": args.path + "/.bloop/" + args.name + "/scala-2.12/classes",
+        "classesDir": args.path + "/.bloop/" + args.name + "/scala-" + ".".join(args.ver.split(".")[:-1]) + "/classes",
         "resolution": {
             "modules": list(map(lambda x: modularize(x), nonSources)) 
         },
