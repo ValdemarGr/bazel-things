@@ -85,7 +85,7 @@ out = {
             absPath + "/main/scala"
         ],
         "dependencies":[],
-        "classpath": nonSources,
+        "classpath": nonSources + list(filter(lambda x: "scala-library" in x, comp.split())),
         "out": args.path + "/.bloop/" + args.name,
         "classesDir": args.path + "/.bloop/" + args.name + "/scala-" + ".".join(args.ver.split(".")[:-1]) + "/classes",
         "resolution": {
