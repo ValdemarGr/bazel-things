@@ -12,7 +12,18 @@ MINOR=$3
 PATCH=$4
 
 NEWEST_HASH=$(git ls-remote git@github.com:casehubdk/bazel-things HEAD | awk ' { print $1 } ')
-NEWEST_SHA=$(curl https://github.com/valdemargr/bazel-things/archive/$(git ls-remote git@github.com:casehubdk/bazel-things HEAD | awk ' { print $1 } ')/.zip -L | sha256sum)
+NEWEST_SHA=$(curl https://github.com/valdemargr/bazel-things/archive/$(git ls-remote git@github.com:casehubdk/bazel-things HEAD | awk ' { print $1 } ')/.zip -L | sha256sum | awk ' { print $1 } ')
+
+mkdir -p src/main/scala
+cat << EOF > src/BUILD.bazel
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary")
+
+scala_binary(
+    name = "bin",
+    main_class = "your_project.Main",
+    # deps = ["//src/main/scala/your_project"],
+)
+EOF
 
 echo "3.5.0" > .bazelversion
 touch BUILD.bazel
@@ -87,10 +98,10 @@ rules_proto_dependencies()
 rules_proto_toolchains()
 
 # dependencies
-commitSha = $NEWEST_HASH
+commitSha = "$NEWEST_HASH"
 http_archive(
     name = "scala_things",
-    sha256 = $NEWEST_SHA,
+    sha256 = "$NEWEST_SHA",
     strip_prefix = "bazel-things-%s" % commitSha,
     url = "https://github.com/valdemargr/bazel-things/archive/%s.zip" % commitSha,
 )
