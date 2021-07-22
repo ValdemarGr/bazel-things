@@ -82,7 +82,9 @@ out = {
         "workspaceDir" : args.path,
         "sources" : [
             absPath + "/src/main/scala",
-            absPath + "/main/scala"
+            absPath + "/main/scala",
+            absPath + "/src/test/scala",
+            absPath + "/test/scala"
         ],
         "dependencies":[],
         "classpath": nonSources + list(filter(lambda x: "scala-library" in x, comp.split())),
