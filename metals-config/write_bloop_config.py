@@ -13,7 +13,7 @@ parser.add_argument("--compiler", type=str)
 args = parser.parse_args()
 
 def scala_paths(path):
-    scala_stream = os.popen(f"""cd {path} bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq""")
+    scala_stream = os.popen(f"""cd {path} && bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq""")
     scala_output = scala_stream.readlines()
     
     return scala_output + [scala_paths(next) for next in scala_output]
