@@ -13,7 +13,7 @@ parser.add_argument("--compiler", type=str)
 args = parser.parse_args()
 
 def scala_paths(path):
-    lines = subprocess.Popen(["bash", "-c", f"""bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq"""], cwd=path, stdout=subprocess.PIPE).stdout.readlines()
+    lines = subprocess.Popen(["bash", "-c", f"""cd {path} && bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq"""], cwd=path, stdout=subprocess.PIPE).stdout.readlines()
     scala_output = [x.decode("utf-8").strip() for x in lines]
     print(path, file=sys.stderr)
     print(scala_output, file=sys.stderr)
@@ -21,7 +21,7 @@ def scala_paths(path):
 
 def go(sps):
     for sp in sps:
-        lines = subprocess.Popen(["bash", "-c", f"""bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'"""], cwd=sp, stdout=subprocess.PIPE).stdout.readlines()
+        lines = subprocess.Popen(["bash", "-c", f"""cd {path} && bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'"""], cwd=sp, stdout=subprocess.PIPE).stdout.readlines()
         dep_output = [x.decode("utf-8").strip() for x in lines]
         yield from dep_output
 
