@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 def scala_paths(path):
     scala_stream = os.popen(f'bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq')
-    scala_ouput = scala_stream.readlines()
+    scala_output = scala_stream.readlines()
     
     return scala_output + [scala_paths(next) for next in scala_output]
 
