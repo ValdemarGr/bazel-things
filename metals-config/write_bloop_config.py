@@ -15,7 +15,7 @@ args = parser.parse_args()
 def scala_paths(path):
     os.chdir(path)
     scala_stream = os.popen(f"""bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq""")
-    scala_output = scala_stream.readlines()
+    scala_output = [x.strip() for x in scala_stream.readlines()]
     
     return scala_output + [scala_paths(next) for next in scala_output]
 
@@ -23,7 +23,7 @@ def go(sps):
     for sp in sps:
         os.chdir(sp)
         dep_stream = os.popen(f"""bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'""")
-        dep_output = dep_stream.readlines()
+        dep_output = [x.strip() for x in dep_stream.readlines()]
         yield from dep_output
 
 rec_paths = list(scala_paths(args.path))
