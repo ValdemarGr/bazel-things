@@ -14,14 +14,14 @@ args = parser.parse_args()
 
 def scala_paths(path):
     lines = subprocess.Popen(["bash", "-c", f"""bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq"""], cwd=path, stdout=subprocess.PIPE).stdout.readlines()
-    scala_output = [x.decode("utf-8") for x in lines]
+    scala_output = [x.decode("utf-8").strip() for x in lines]
     
     return scala_output + [scala_paths(next) for next in scala_output]
 
 def go(sps):
     for sp in sps:
         lines = subprocess.Popen(["bash", "-c", f"""bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'"""], cwd=sp, stdout=subprocess.PIPE).stdout.readlines()
-        dep_output = [x.decode("utf-8") for x in lines]
+        dep_output = [x.decode("utf-8").strip() for x in lines]
         yield from dep_output
 
 rec_paths = list(scala_paths(args.path))
