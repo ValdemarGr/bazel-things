@@ -20,7 +20,7 @@ def scala_paths(path):
 
 def go(sps):
     for sp in sps:
-        dep_stream = os.popen(f'''cd ${sp} && bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'''')
+        dep_stream = os.popen(f"""cd ${sp} && bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'""")
         dep_output = dep_stream.readlines()
         yield from dep_output
 
