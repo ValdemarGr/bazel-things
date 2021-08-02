@@ -13,14 +13,16 @@ parser.add_argument("--compiler", type=str)
 args = parser.parse_args()
 
 def scala_paths(path):
-    scala_stream = os.popen(f"""cd {path} && bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq""")
+    os.chdir(path)
+    scala_stream = os.popen(f"""bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq""")
     scala_output = scala_stream.readlines()
     
     return scala_output + [scala_paths(next) for next in scala_output]
 
 def go(sps):
     for sp in sps:
-        dep_stream = os.popen(f"""cd {sp} && bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'""")
+        os.chdir(sp)
+        dep_stream = os.popen(f"""bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'""")
         dep_output = dep_stream.readlines()
         yield from dep_output
 
