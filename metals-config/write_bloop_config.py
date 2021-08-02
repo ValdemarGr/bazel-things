@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 def scala_paths(path):
     lines = subprocess.Popen(["bash", "-c", f"""cd {path} && bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq"""], cwd=path, stdout=subprocess.PIPE).stdout.readlines()
-    scala_output = [x.decode("utf-8").strip() for x in lines if x != path]
+    scala_output = [x.decode("utf-8").strip() for x in lines if x.decode("utf-8").strip() != path]
     print(path, file=sys.stderr)
     print(scala_output, file=sys.stderr)
     return scala_output + [scala_paths(next) for next in scala_output]
