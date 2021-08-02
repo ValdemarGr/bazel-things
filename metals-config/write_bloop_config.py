@@ -17,7 +17,7 @@ def scala_paths(path):
     scala_output = [x.decode("utf-8").strip() for x in lines if x.decode("utf-8").strip() != path]
     print(path, file=sys.stderr)
     print(scala_output, file=sys.stderr)
-    return scala_output + [scala_paths(next) for next in scala_output]
+    return scala_output + [x for next in scala_output for x in scala_paths(next)]
 
 def go(sps):
     for sp in sps:
