@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", type=str)
@@ -11,9 +12,20 @@ parser.add_argument("--compiler", type=str)
 
 args = parser.parse_args()
 
-deps = sys.stdin.read()
+def scala_paths(path):
+    scala_stream = os.popen(f'bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq')
+    scala_ouput = scala_stream.readlines()
+    
+    return scala_output + [scala_paths(next) for next in scala_output]
 
-asLst = deps.split()
+def go(sps):
+    for sp in sps:
+        dep_stream = os.popen(f'''cd ${sp} && bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'''')
+        dep_output = dep_stream.readlines()
+        yield from dep_output
+
+rec_paths = list(scala_paths(args.path))
+asLst = list(go(rec_paths))
 
 absPath = args.path + "/" + args.name
 
@@ -65,6 +77,8 @@ defas = [
     mk_def("scala-library"),
 ]
 
+
+                              
 out = {
     "version": "1.4.0",
     "project": {
@@ -85,7 +99,7 @@ out = {
             absPath + "/main/scala",
             absPath + "/src/test/scala",
             absPath + "/test/scala"
-        ],
+        ] + [x + "/src/main/scala" for x in rec_paths],
         "dependencies":[],
         "classpath": nonSources + list(filter(lambda x: "scala-library" in x, comp.split())),
         "out": args.path + "/.bloop/" + args.name,
