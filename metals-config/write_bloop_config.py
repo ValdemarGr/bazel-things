@@ -15,7 +15,9 @@ args = parser.parse_args()
 def scala_paths(path):
     lines = subprocess.Popen(["bash", "-c", f"""cd {path} && bazel query "deps(...)" --output location | rg "/[^ ]+scala_project_[^/]+" -o | uniq"""], cwd=path, stdout=subprocess.PIPE).stdout.readlines()
     scala_output = [x.decode("utf-8").strip() for x in lines if x.decode("utf-8").strip() != path]
-    return scala_output + [x for next in scala_output for x in scala_paths(next)]
+    #dont recurse, that doesnt make sense. All deps are declared locally
+    #return scala_output + [x for next in scala_output for x in scala_paths(next)]
+    return scala_output
 
 def go(sps):
     for sp in sps:
