@@ -24,8 +24,8 @@ def go(sps):
         dep_output = [x.decode("utf-8").strip() for x in lines]
         yield from dep_output
 
-rec_paths = list(scala_paths(args.path))
-asLst = list(go([args.path] + rec_paths))
+rec_paths = list(set(scala_paths(args.path)))
+asLst = list(set(go([args.path] + rec_paths)))
 
 absPath = args.path + "/" + args.name
 
