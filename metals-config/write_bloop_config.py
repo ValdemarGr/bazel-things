@@ -20,7 +20,6 @@ def scala_paths(path):
     return scala_output
 
 def go(sps):
-    print(sps, file=sys.stderr)
     for sp in sps:
         cmd = ["bash", "-c", f"""cd {sp} && bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'"""]
         lines = subprocess.Popen(cmd, cwd=sp, stdout=subprocess.PIPE).stdout.readlines()
