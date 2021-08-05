@@ -17,7 +17,6 @@ def scala_paths(path):
     scala_output = [x.decode("utf-8").strip() for x in lines if x.decode("utf-8").strip() != path]
     #dont recurse, that doesnt make sense. All deps are declared locally
     #return scala_output + [x for next in scala_output for x in scala_paths(next)]
-    print(scala_output, file=sys.stderr)
     return scala_output
 
 def go(sps):
@@ -26,14 +25,10 @@ def go(sps):
         cmd = ["bash", "-c", f"""cd {sp} && bazel query "deps(...)" --output location | grep -E '.\.jar$' | grep maven | sed 's/BUILD:[0-9]*:[0-9]*: source file @maven\/\/://'"""]
         lines = subprocess.Popen(cmd, cwd=sp, stdout=subprocess.PIPE).stdout.readlines()
         dep_output = [x.decode("utf-8").strip() for x in lines]
-        print(sp, file=sys.stderr)
-        print(dep_output, file=sys.stderr)
         yield from dep_output
 
 rec_paths = list(set(scala_paths(args.path)))
 asLst = list(set(go([args.path] + rec_paths)))
-print(rec_paths, file=sys.stderr)
-print(asLst, file=sys.stderr)
 
 absPath = args.path + "/" + args.name
 
