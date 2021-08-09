@@ -28,7 +28,7 @@ scala_toolchain(
 
 toolchain(
     name = "production",
-    toolchain = "development-toolchain",
+    toolchain = "production-scala_toolchain",
     toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
