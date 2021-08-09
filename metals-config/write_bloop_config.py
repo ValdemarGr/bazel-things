@@ -101,7 +101,7 @@ out = {
             absPath + "/main/scala",
             absPath + "/src/test/scala",
             absPath + "/test/scala"
-        ] + [x + "/src/main/scala" for x in rec_paths],
+        ] + [x + "/src/main/scala" for x in rec_paths] + [x + "/src/test/scala" for x in rec_paths],
         "dependencies":[],
         "classpath": nonSources + list(filter(lambda x: "scala-library" in x, comp.split())),
         "out": args.path + "/.bloop/" + args.name,
