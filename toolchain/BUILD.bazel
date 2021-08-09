@@ -3,7 +3,7 @@ load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_toolchain(
     name = "toolchain-scala_toolchain",
-    dependency_mode = "direct",
+    dependency_mode = "plus-one",
     scalacopts = [
                 "-encoding",
                 "UTF-8",
