@@ -3,7 +3,7 @@ load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_toolchain(
     name = "toolchain-scala_toolchain",
-    dependency_mode = "plus-one",
+    #dependency_mode = "plus-one",
     scalacopts = [
                 "-encoding",
                 "UTF-8",
@@ -16,8 +16,8 @@ scala_toolchain(
             ],
     visibility = ["//visibility:public"],
     strict_deps_mode = "error",
-    unused_dependency_checker_mode = "error", 
-    dependency_tracking_method = "ast",
+    #unused_dependency_checker_mode = "error", 
+    #dependency_tracking_method = "ast",
 )
 
 toolchain(
