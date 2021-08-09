@@ -17,7 +17,7 @@ scala_toolchain(
     visibility = ["//visibility:public"],
     strict_deps_mode = "error",
     unused_dependency_checker_mode = "error", 
-    dependency_tracking_method = "ast",
+    dependency_tracking_method = "high-level",
 )
 
 toolchain(
