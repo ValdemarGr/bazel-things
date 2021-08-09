@@ -2,7 +2,7 @@
 load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_toolchain(
-    name = "development-toolchain",
+    name = "development-scala_toolchain",
     dependency_mode = "direct",
     scalacopts = [
                 "-encoding",
@@ -27,7 +27,7 @@ scala_toolchain(
 )
 
 toolchain(
-    name = "development-scala_toolchain",
+    name = "development",
     toolchain = "development-toolchain",
     toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
