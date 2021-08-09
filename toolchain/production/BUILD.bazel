@@ -20,6 +20,7 @@ scala_toolchain(
                 "-Xlint:-unused,_",
                 "-Ywarn-unused:imports",
                 "-Yrangepos",
+                "-Xlint:-byname-implicit"
             ],
     #strict_deps_mode = "error",
     #unused_dependency_checker_mode = "error",
