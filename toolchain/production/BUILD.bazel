@@ -3,7 +3,7 @@ load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_toolchain(
     name = "production-scala_toolchain",
-    dependency_mode = "direct",
+    #dependency_mode = "direct",
     scalacopts = [
                 "-encoding",
                 "UTF-8",
@@ -21,8 +21,8 @@ scala_toolchain(
                 "-Ywarn-unused:imports",
                 "-Yrangepos",
             ],
-    strict_deps_mode = "error",
-    unused_dependency_checker_mode = "error",
+    #strict_deps_mode = "error",
+    #unused_dependency_checker_mode = "error",
     visibility = ["//visibility:public"],
 )
 
