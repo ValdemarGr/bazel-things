@@ -31,6 +31,7 @@ flags = [
   "-Ywarn-unused",
   "-Ywarn-unused:imports",
   "-Ywarn-value-discard",
+  "-Ywarn-macros:after",
   "-deprecation",
   "-explaintypes",
   "-feature",
