@@ -1,6 +1,7 @@
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven", "parse")
 load("@bazel_skylib//lib:partial.bzl", "partial")
+load("@bazel_skylib//lib/collections.bzl", "collections")
 
 def to_string_version(scala_versions):
     return scala_versions["major"] + "." + scala_versions["minor"] + "." + scala_versions["patch"]
@@ -63,7 +64,7 @@ def make_scala_versions(major, minor, patch):
   }
 
 def install_dependencies(deps, scala_versions):
-    as_mvn = [_dep_to_java(d, scala_versions) for d in list(set(deps))]
+    as_mvn = [_dep_to_java(d, scala_versions) for d in collections.uniq(deps)]
     maven_install(
         artifacts = as_mvn,
         repositories = [
