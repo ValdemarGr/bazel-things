@@ -64,9 +64,10 @@ def make_scala_versions(major, minor, patch):
   }
 
 def install_dependencies(deps, scala_versions):
-    as_mvn = [_dep_to_java(d, scala_versions) for d in collections.uniq(deps)]
+    as_mvn = [_dep_to_java(d, scala_versions) for d in deps]
+    
     maven_install(
-        artifacts = as_mvn,
+        artifacts = collections.uniq(as_mvn),
         repositories = [
             "https://repo.maven.apache.org/maven2/",
             "https://mvnrepository.com/artifact",
