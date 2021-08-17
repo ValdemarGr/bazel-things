@@ -27,7 +27,7 @@ def go(sps):
         yield from dep_output
 
 rec_paths = list(set(scala_paths(args.path)))
-asLst = list(set(go([args.path] + rec_paths)))
+asLst = list(set(go([args.path])))
 
 absPath = args.path + "/" + args.name
 
