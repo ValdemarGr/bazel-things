@@ -18,6 +18,9 @@ scala_toolchain(
     unused_dependency_checker_mode = "error", 
     dependency_tracking_method = "high-level",
     dependency_mode = "direct",
+    unused_dependency_checker_ignored_targets = [
+        "@maven//:org_typelevel_literally_2_13"
+    ]
 )
 
 toolchain(
