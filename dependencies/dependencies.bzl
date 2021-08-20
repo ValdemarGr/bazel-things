@@ -78,5 +78,3 @@ def install_dependencies(deps, scala_versions):
         fail_if_repin_required = True,
         maven_install_json = "//:maven_install.json",
     )
-    
-    pinned_maven_install()
