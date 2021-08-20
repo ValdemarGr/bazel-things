@@ -40,6 +40,10 @@ flags = [
   "-language:implicitConversions",
   "-unchecked",
   # "-Vtype-diffs",
-  # "-Xlint:strict-unsealed-patmat",
-  
+  # "-Xlint:strict-unsealed-patmat", 
 ]
+
+def unused_targets_ignored(scala_version):
+  return [
+    "@maven//:org_typelevel_literally_" + scala_version
+  ]
