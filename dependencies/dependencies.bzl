@@ -1,4 +1,4 @@
-load("@rules_jvm_external//:defs.bzl", "maven_install")
+load("@rules_jvm_external//:defs.bzl", "maven_install", "pinned_maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven", "parse")
 load("@bazel_skylib//lib:partial.bzl", "partial")
 load("@bazel_skylib//lib:collections.bzl", "collections")
@@ -62,7 +62,7 @@ def make_scala_versions(major, minor, patch):
       "minor": minor,
       "patch": patch
   }
-load("@maven//:defs.bzl", "pinned_maven_install")
+
 def install_dependencies(deps, scala_versions):
     as_mvn = [_dep_to_java(d, scala_versions) for d in deps]
     un = {(m["group"]+m["artifact"]+m["version"]): m for m in as_mvn}.values()
