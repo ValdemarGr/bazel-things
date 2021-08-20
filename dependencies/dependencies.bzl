@@ -1,4 +1,4 @@
-load("@rules_jvm_external//:defs.bzl", "maven_install", "pinned_maven_install")
+load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven", "parse")
 load("@bazel_skylib//lib:partial.bzl", "partial")
 load("@bazel_skylib//lib:collections.bzl", "collections")
