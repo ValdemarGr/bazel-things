@@ -45,5 +45,6 @@ flags = [
 
 def unused_targets_ignored(scala_version):
   return [
-    "@maven//:org_typelevel_literally_" + scala_version
+    "@maven//:org_typelevel_literally_" + scala_version,
+    "@maven//:org_typelevel_cats_parse_" + scala_version
   ]
