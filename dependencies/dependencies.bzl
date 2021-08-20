@@ -62,7 +62,7 @@ def make_scala_versions(major, minor, patch):
       "minor": minor,
       "patch": patch
   }
-
+load("@maven//:defs.bzl", "pinned_maven_install")
 def install_dependencies(deps, scala_versions):
     as_mvn = [_dep_to_java(d, scala_versions) for d in deps]
     un = {(m["group"]+m["artifact"]+m["version"]): m for m in as_mvn}.values()
@@ -75,5 +75,8 @@ def install_dependencies(deps, scala_versions):
         ],
         fetch_sources = True,
         generate_compat_repositories = True,
-        #        maven_install_json = "//:maven_install.json",
+        fail_if_repin_required = True,
+        maven_install_json = "//:maven_install.json",
     )
+    
+    pinned_maven_install()
