@@ -63,9 +63,17 @@ def make_scala_versions(major, minor, patch):
       "patch": patch
   }
 
-def install_dependencies(deps, scala_versions):
+def install_dependencies(deps, scala_versions, use_pinned=False):
     as_mvn = [_dep_to_java(d, scala_versions) for d in deps]
     un = {(m["group"]+m["artifact"]+m["version"]): m for m in as_mvn}.values()
+    
+    fail_if_repin_required = False
+    maven_install_json = None
+    
+    if use_pinned:
+        fail_if_repin_required = True
+        maven_install_json = "//:maven_install.json"
+    
     maven_install(
         artifacts = un,
         repositories = [
@@ -75,6 +83,6 @@ def install_dependencies(deps, scala_versions):
         ],
         fetch_sources = True,
         generate_compat_repositories = True,
-        fail_if_repin_required = True,
-        maven_install_json = "//:maven_install.json",
+        fail_if_repin_required = fail_if_repin_required,
+        maven_install_json = maven_install_json,
     )
