@@ -51,6 +51,7 @@ def unused_targets_ignored(scala_version):
     "@maven//:org_typelevel_case_insensitive_" + scala_version,
     "@maven//:org_http4s_http4s_dsl_" + scala_version,
     "@maven//:org_typelevel_cats_kernel_" + scala_version,
+    "@maven//:co_fs2_fs2_core_" + scala_version,
   ]
   
   jakarta_mail = [
