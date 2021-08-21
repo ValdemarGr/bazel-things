@@ -1,5 +1,0 @@
-sh_binary(
-    name = "metals-config",
-    srcs = ["invoke.sh"],
-    data = ["write_bloop_config.py"]
-)
