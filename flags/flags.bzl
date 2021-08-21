@@ -44,11 +44,22 @@ flags = [
 ]
 
 def unused_targets_ignored(scala_version):
-  return [
+  http4s_uri_macro = [
     "@maven//:org_typelevel_literally_" + scala_version,
     "@maven//:org_typelevel_cats_parse_" + scala_version,
     "@maven//:com_comcast_ip4s_core_" + scala_version,
     "@maven//:org_typelevel_case_insensitive_" + scala_version,
     "@maven//:org_http4s_http4s_dsl_" + scala_version,
+  ]
+  
+  jakarta_mail = [
     "@maven//:javax_mail_mail"
   ]
+  
+  all = http4s_uri_macro + jakarta_mail
+    
+  return {
+    all: all,
+    http4s_uir_macro: http4s_uir_macro,
+    jakarta_mail: jakarta_mail
+  }
