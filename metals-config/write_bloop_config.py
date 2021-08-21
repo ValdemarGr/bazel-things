@@ -41,7 +41,7 @@ asLst = list(maven_deps)
 
 absPath = path + "/" + args.name
 
-version = [x for x in bazel_deps if "scala-compiler" in x][0].split(":")[2]
+version = [x for x in bazel_deps if "scala-library" in x][0].split(":")[2]
 only_comp = fetch_deps([f"org.scala-lang:scala-compiler:{version}"], with_sources=False)
 comp = [x for x in only_comp if "scala" in x]
 print(f"using compiler items {comp}", file=sys.stderr)
