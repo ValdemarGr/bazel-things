@@ -59,7 +59,7 @@ def unused_targets_ignored(scala_version):
   all = http4s_uri_macro + jakarta_mail
     
   return {
-    all: all,
-    http4s_uri_macro: http4s_uri_macro,
-    jakarta_mail: jakarta_mail
+    "all": all,
+    "http4s_uri_macro": http4s_uri_macro,
+    "jakarta_mail": jakarta_mail
   }
