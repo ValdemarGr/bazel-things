@@ -102,3 +102,24 @@ When building, it may occur that there are unused dependencies that cause the bu
 Fortunately the unused dep rule provides a command that requires `buildozer`, to remove the unused dependencies.
 The shell script `doze/doze.sh` just take the supplied command and runs the buildozer commands on the supplied command's stdout/err stream.
 ```doze bazel build "//..."```
+## Flags, macro and runtime dependencies
+The repository contains some opinionated flags for scalac.
+```starlark
+load("@scala_things//:flags/flags.bzl", "flags")
+scala_library(
+    name = ...,
+    srcs = ...,
+    scalacopts = flags,
+...
+```
+Sometimes the unused dependency checker behaves aggressively, thus must told to relax on some dependencies.
+There are a preset of dependency exclusions defined in https://github.com/casehubdk/bazel-things/blob/9917ee93ec8c4ec2d46f678d7f6bd786d9245dcd/flags/flags.bzl#L46-L67.
+To apply one, or more exclusions, use the following.
+```starlark
+load("@scala_things//:flags/flags.bzl", "unused_targets_ignored")
+scala_library(
+    name = ...,
+    srcs = ...,
+    unused_dependency_checker_ignored_targets = unused_targets_ignored("2_13")["http4s_uri_macro"],
+```
+The lists of dependencies are but starlark lists, so they con be combined ad-hoc.
