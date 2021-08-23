@@ -81,3 +81,4 @@ Say the directory with your sources is named `src`, the script should be invoked
 mkdir .bloop
 bazel-things/metals-config/write_bloop_config.py --name src > .bloop/src.json
 ```
+The script can also account for imported scala code, by querying the location of all external dependencies with the prefix `scala_project_`, hence `scala_project_some_inhouse_project` in the earlier example.
