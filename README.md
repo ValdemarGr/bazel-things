@@ -52,6 +52,27 @@ load("@scala_project_some_inhouse_project//:dependencies.bzl", some_inhouse_proj
 
 install_dependencies(some_dependencies + some_inhouse_project_deps, scala_versions)
 ```
+The `to_string_version` can also be used as parameter to the official scala bazel rules to configure the compiler version.
+```starlark
+load("@scala_things//:dependencies/dependencies.bzl", "install_dependencies", "to_string_version")
+load("//:dependencies.bzl", "some_dependencies", "scala_versions")
+...
+# scala
+rules_scala_version = "b85d1225d0ddc9c376963eb0be86d9d546f25a4a"  # update this as needed
+
+http_archive(
+    name = "io_bazel_rules_scala",
+    sha256 = "f6fa4897545e8a93781ad8936d5a59e90e2102918e8997a9dab3dc5c5ce2e09e",
+    strip_prefix = "rules_scala-%s" % rules_scala_version,
+    type = "zip",
+    url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % rules_scala_version,
+)
+
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+load("//:dependencies.bzl", "scala_versions")
+
+scala_config(to_string_version(scala_versions))
+```
 ## Metals integration
 I use metals with vim.
 Bazel cannot generate bloop generation as of now so there is also script which can emit bloop configuration if `rules_jvm_external` are used.
