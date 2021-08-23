@@ -122,4 +122,4 @@ scala_library(
     srcs = ...,
     unused_dependency_checker_ignored_targets = unused_targets_ignored("2_13")["http4s_uri_macro"],
 ```
-The lists of dependencies are but starlark lists, so they con be combined ad-hoc.
+The lists of dependencies are but starlark lists, so they can be combined ad-hoc.
