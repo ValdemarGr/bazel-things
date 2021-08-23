@@ -100,5 +100,5 @@ The parameters are already well documented in the official rules.
 ### Doze
 When building, it may occur that there are unused dependencies that cause the build to fail (we see unused deps as errors.
 Fortunately the unused dep rule provides a command that requires `buildozer`, to remove the unused dependencies.
-The shell script `doze/doze.sh` justs take the stream of the supplied command and runs the buildozel commands.
+The shell script `doze/doze.sh` just take the supplied command and runs the buildozer commands on the supplied command's stdout/err stream.
 ```doze bazel build "//..."```
