@@ -90,3 +90,15 @@ mkdir .bloop
 bazel-things/metals-config/write_bloop_config.py --name src > .bloop/src.json
 ```
 The script can also account for imported scala code, by querying the location of all external dependencies with the prefix `scala_project_`, hence `scala_project_some_inhouse_project` in the earlier example.
+## Toolchain and doze
+The official scala bazel rules provide a set of toolchain parameters for enabling unused and strict dependency checking.
+The toolchains can be registered globally as follows.
+```starlark
+register_toolchains("@scala_things//toolchain")
+```
+The parameters are already well documented in the official rules.
+### Doze
+When building, it may occur that there are unused dependencies that cause the build to fail (we see unused deps as errors.
+Fortunately the unused dep rule provides a command that requires `buildozer`, to remove the unused dependencies.
+The shell script `doze/doze.sh` justs take the stream of the supplied command and runs the buildozel commands.
+```doze bazel build "//..."```
