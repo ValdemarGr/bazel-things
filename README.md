@@ -73,6 +73,14 @@ load("//:dependencies.bzl", "scala_versions")
 
 scala_config(to_string_version(scala_versions))
 ```
+### Pinning
+The `rules_jvm_external` rules also allow pinning, such that dependencies can be cached by bazel.
+Since the `maven_install` function is called from the bazel file in this repo, a parameter has been provided to control the use of pinnig (`use_pinned`) (with the defaul pin file location and such).
+```starlark
+install_dependencies(some_dependencies, scala_versions, use_pinned=True)
+load("@maven//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
+```
 ## Metals integration
 I use metals with vim.
 Bazel cannot generate bloop generation as of now, so I have also written a python script which can emit bloop configuration if `rules_jvm_external` are used.
