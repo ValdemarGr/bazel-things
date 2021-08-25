@@ -31,6 +31,14 @@ touch BUILD.bazel
 cat << EOF > .bazelrc
 build --strategy=Scalac=worker
 build --worker_sandboxing
+build --google_default_credentials
+build --remote_cache=https://storage.googleapis.com/casehub-bazel-build-cache
+build --disk_cache=~/.cache/bazelcache
+
+build --host_javabase=@bazel_tools//tools/jdk:remote_jdk11 
+build --javabase=@bazel_tools//tools/jdk:remote_jdk11
+test --host_javabase=@bazel_tools//tools/jdk:remote_jdk11 
+test --javabase=@bazel_tools//tools/jdk:remote_jdk11
 EOF
 
 cat << EOF > .scalafmt.conf
@@ -49,7 +57,7 @@ newlines.afterCurlyLambda = preserve
 EOF
 
 cat << EOF > dependencies.bzl
-load("@scala_things//:dependencies/dependencies.bzl", "java_dependency", "scala_dependency", "scala_fullver_dependency", "make_scala_versions", "apply_scala_version", "apply_scala_fullver_version")
+load("@scala_things//:dependencies/dependencies.bzl", "java_dependency", "scala_dependency", "scala_fullver_dependency", "make_scala_versions", "apply_scala_fullver_version")
 
 scala_versions = make_scala_versions(
     "$MAJOR",
@@ -58,10 +66,8 @@ scala_versions = make_scala_versions(
 )
 
 project_deps = [
+    scala_dependency("org.typelevel", "cats-effect", "3.2.2"),
 ]
-
-def add_scala_ver(s):
-    return apply_scala_version(scala_versions, s)
 
 def add_scala_fullver(s):
     return apply_scala_fullver_version(scala_versions, s)
@@ -98,12 +104,16 @@ rules_proto_dependencies()
 rules_proto_toolchains()
 
 # dependencies
-commitSha = "$NEWEST_HASH"
+# local_repository(
+#     name = "scala_things",
+#     path = "../bazel-things",
+# )
+commit_sha = "$NEWEST_HASH"
 http_archive(
     name = "scala_things",
     sha256 = "$NEWEST_SHA",
-    strip_prefix = "bazel-things-%s" % commitSha,
-    url = "https://github.com/valdemargr/bazel-things/archive/%s.zip" % commitSha,
+    strip_prefix = "bazel-things-%s" % commit_sha,
+    url = "https://github.com/valdemargr/bazel-things/archive/%s.zip" % commit_sha,
 )
 
 load("@scala_things//:dependencies/init.bzl", "bazel_things_dependencies")
@@ -113,7 +123,10 @@ bazel_things_dependencies()
 load("//:dependencies.bzl", "project_deps", "scala_versions")
 load("@scala_things//:dependencies/dependencies.bzl", "install_dependencies", "to_string_version")
 
-install_dependencies(project_deps, scala_versions)
+install_dependencies(project_deps, scala_versions, use_pinned=False) #rem me
+#phase2 install_dependencies(project_deps, scala_versions, use_pinned=True)
+#phase2 load("@maven//:defs.bzl", "pinned_maven_install")
+#phase2 pinned_maven_install()
 
 # scala
 rules_scala_version = "b85d1225d0ddc9c376963eb0be86d9d546f25a4a"  # update this as needed
@@ -132,7 +145,7 @@ scala_config(to_string_version(scala_versions))
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 
-register_toolchains("@scala_things//toolchain/development:development-scala_toolchain")
+register_toolchains("@scala_things//toolchain")
 
 scala_repositories()
 
@@ -142,3 +155,8 @@ junit_repositories()
 
 junit_toolchain()
 EOF
+
+bazel run @maven//:pin
+sed -i 's/.*#rem me//' WORKSPACE
+sed -i 's/#phase2 //' WORKSPACE
+bazel run @unpinned_maven//:pin
