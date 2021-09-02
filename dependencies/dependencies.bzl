@@ -1,5 +1,4 @@
 load("@rules_jvm_external//:defs.bzl", "maven_install")
-load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
 load("@rules_jvm_external//:specs.bzl", "maven", "parse")
 load("@bazel_skylib//lib:partial.bzl", "partial")
 load("@bazel_skylib//lib:collections.bzl", "collections")
@@ -87,5 +86,3 @@ def install_dependencies(deps, scala_versions, use_pinned=False):
         fail_if_repin_required = fail_if_repin_required,
         maven_install_json = maven_install_json,
     )
-
-    rules_jvm_external_deps()
