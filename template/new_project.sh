@@ -160,3 +160,13 @@ bazel run @maven//:pin
 sed -i 's/.*#rem me//' WORKSPACE
 sed -i 's/#phase2 //' WORKSPACE
 bazel run @unpinned_maven//:pin
+
+cat << EOF > .gitignore
+.terraform*
+.idea
+.ijwb
+bazel-*
+.bloop
+.metals
+*.iml
+EOF
