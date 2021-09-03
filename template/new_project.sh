@@ -41,6 +41,16 @@ test --host_javabase=@bazel_tools//tools/jdk:remote_jdk11
 test --javabase=@bazel_tools//tools/jdk:remote_jdk11
 EOF
 
+cat << EOF > .gitignore
+.terraform*
+.idea
+.ijwb
+bazel-*
+.bloop
+.metals
+*.iml
+EOF
+
 cat << EOF > .scalafmt.conf
 version = "2.7.5"
 align = most
@@ -160,3 +170,4 @@ bazel run @maven//:pin
 sed -i 's/.*#rem me//' WORKSPACE
 sed -i 's/#phase2 //' WORKSPACE
 bazel run @unpinned_maven//:pin
+
