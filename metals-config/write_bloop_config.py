@@ -7,6 +7,7 @@ import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", type=str)
+parser.add_argument("--path", type=str)
 
 args = parser.parse_args()
 path = os.getcwd()
@@ -39,7 +40,7 @@ maven_deps = fetch_deps(bazel_deps)
 rec_paths = list(set(scala_paths("scala_project_")))
 asLst = list(maven_deps)
 
-absPath = path + "/" + args.name
+absPath = path + "/" + args.path
 
 version = [x for x in bazel_deps if "scala-library" in x][0].split(":")[2]
 only_comp = fetch_deps([f"org.scala-lang:scala-compiler:{version}"], with_sources=False)
@@ -107,8 +108,8 @@ out = {
         ] + [x + "/src/main/scala" for x in rec_paths] + [x + "/src/test/scala" for x in rec_paths],
         "dependencies":[],
         "classpath": nonSources + list(filter(lambda x: "scala-library" in x, comp)),
-        "out": path + "/.bloop/" + args.name,
-        "classesDir": path + "/.bloop/" + args.name + "/scala-" + ".".join(version.split(".")[:-1]) + "/classes",
+        "out": path + "/.bloop/" + args.path,
+        "classesDir": path + "/.bloop/" + args.path + "/scala-" + ".".join(version.split(".")[:-1]) + "/classes",
         "resolution": {
             "modules": list(map(lambda x: modularize(x), nonSources)) 
         },
