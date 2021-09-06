@@ -123,7 +123,7 @@ http_archive(
     name = "scala_things",
     sha256 = "$NEWEST_SHA",
     strip_prefix = "bazel-things-%s" % commit_sha,
-    url = "https://github.com/valdemargr/bazel-things/archive/%s.zip" % commit_sha,
+    url = "https://github.com/casehubdk/bazel-things/archive/%s.zip" % commit_sha,
 )
 
 load("@scala_things//:dependencies/init.bzl", "bazel_things_dependencies")

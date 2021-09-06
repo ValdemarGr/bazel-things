@@ -50,7 +50,7 @@ print(f"using compiler items {comp}", file=sys.stderr)
 sources = list(filter(lambda x: x.endswith("sources.jar"), asLst))
 nonSources = list(filter(lambda x: not x.endswith("sources.jar"), asLst))
 
-plugins = set(["kind-projector"])
+plugins = set(["kind-projector", "better-monadic-for"])
 
 def modularize(dep):
     toSearch = "maven2/"
