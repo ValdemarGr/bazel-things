@@ -29,7 +29,7 @@ def get_maven_deps():
     return formatted
 
 def get_scala_projects():
-    lines = subprocess.Popen(["bash", "-c", "bazel query \"deps(...)\" | rg scala_project | sed 's/\/.*$//g' | uniq"], stdout=subprocess.PIPE).stdout.readlines()
+    lines = subprocess.Popen(["bash", "-c", "bazel query \"deps(...)\" | rg scala_project | sed 's/\/.*$//g' | sort | uniq"], stdout=subprocess.PIPE).stdout.readlines()
     formatted = [x.decode("utf-8").strip() for x in lines]
     print(f"queried {len(formatted)} maven deps from bazel", file=sys.stderr)
     return formatted
@@ -40,9 +40,12 @@ def get_deps_tree_for(project):
     print(f"queried {len(formatted)} maven deps from bazel", file=sys.stderr)
     return formatted
 
+def is_service_dep(d):
+    return re.search(r"^@scala_project_([a-z]+)//src/main/scala/casehub/([a-z]+)/service",d) is not None
+
 maven_deps = [x for x in get_maven_deps() if whitelisted(x)]
 scala_projects = get_scala_projects()
-all_inhouse_deps = [d for proj in scala_projects for d in get_deps_tree_for(proj)]
+all_inhouse_deps = [d for proj in scala_projects for d in get_deps_tree_for(proj) if not is_service_dep(d)]
 
 combined = [x for x in all_inhouse_deps + maven_deps if not x.endswith("extension") and not x.endswith("outdated")]
 filted = [f"\"{x}\"" for x in combined if not re.search("\d+_\d+_\d+", x)]
