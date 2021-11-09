@@ -1,0 +1,48 @@
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+
+natchez_deps = [
+    "//commondeps/cats:cats",
+    "//commondeps/cats:cats_effect",
+]
+
+scala_library(
+    name = "core",
+    visibility = ["//visibility:public"],
+    deps = natchez_deps,
+    exports = [
+        "@maven//:org_scala_lang_scala_library",
+        "@maven//:org_tpolecat_natchez_core_2_13",
+        "@maven//:io_opentracing_opentracing_api"
+    ]
+)
+
+scala_library(
+    name = "http4s",
+    visibility = ["//visibility:public"],
+    deps = [":core"],
+    exports = [
+        "@maven//:org_scala_lang_scala_library",
+        "@maven//:org_tpolecat_natchez_http4s_2_13",
+    ]
+)
+
+scala_library(
+    name = "doobie",
+    visibility = ["//visibility:public"],
+    deps = [":core"],
+    exports = [
+        "@maven//:org_scala_lang_scala_library",
+        "@maven//:com_ovoenergy_natchez_extras_doobie_2_13",
+    ]
+)
+
+scala_library(
+    name = "jaeger",
+    visibility = ["//visibility:public"],
+    deps = [":core"],
+    exports = [
+        "@maven//:org_scala_lang_scala_library",
+        "@maven//:org_tpolecat_natchez_jaeger_2_13",
+        "@maven//:io_jaegertracing_jaeger_core",
+    ]
+)

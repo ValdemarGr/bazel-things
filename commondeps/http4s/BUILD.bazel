@@ -1,9 +1,10 @@
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
 
 core_deps = [
-    "@maven//:org_scala_lang_scala_library",
+    "@maven//:com_chuusai_shapeless_2_13",
     "//commondeps/cats:cats",
     "//commondeps/cats:cats_effect",
+    "//commondeps/fs2:fs2",
 ]
 
 scala_library(
@@ -11,25 +12,40 @@ scala_library(
     visibility = ["//visibility:public"],
     deps = core_deps,
     exports = [
+      "@maven//:org_scala_lang_scala_library",
       "@maven//:org_http4s_http4s_core_2_13",
+      "@maven//:org_http4s_http4s_client_2_13",
+      "@maven//:org_http4s_http4s_server_2_13",
       # macros
       "@maven//:org_typelevel_cats_parse_2_13",
       "@maven//:com_comcast_ip4s_core_2_13",
       "@maven//:org_typelevel_literally_2_13",
       "@maven//:org_typelevel_case_insensitive_2_13",
+      "@maven//:com_chuusai_shapeless_2_13",
     ]
 )
 
 circe_deps = [
+    "//commondeps/circe:circe",
     "@maven//:org_http4s_http4s_jawn_2_13",
     "@maven//:org_scodec_scodec_bits_2_13",
-] + core_deps
+]
 
 scala_library(
     name = "circe",
     visibility = ["//visibility:public"],
     deps = [":core"],
     exports = [
+      "@maven//:org_scala_lang_scala_library",
       "@maven//:org_http4s_http4s_circe_2_13",
+    ]
+)
+
+scala_library(
+    name = "blaze",
+    visibility = ["//visibility:public"],
+    deps = [":core"] + core_deps,
+    exports = [
+      "@maven//:org_http4s_http4s_blaze_core_2_13",
     ]
 )

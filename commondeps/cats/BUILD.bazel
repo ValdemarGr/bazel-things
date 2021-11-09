@@ -16,11 +16,9 @@ scala_library(
 scala_library(
     name = "cats_effect",
     visibility = ["//visibility:public"],
-    deps = [
-        "@maven//:org_scala_lang_scala_library",
-        ":cats"
-    ],
+    deps = [":cats"],
     exports = [
+        "@maven//:org_scala_lang_scala_library",
         "@maven//:org_typelevel_cats_effect_2_13",
         "@maven//:org_typelevel_cats_effect_kernel_2_13",
         "@maven//:org_typelevel_cats_effect_std_2_13"

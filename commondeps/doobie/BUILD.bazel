@@ -1,7 +1,6 @@
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
 
 core_deps = [
-    "@maven//:org_scala_lang_scala_library",
     "//commondeps/cats:cats",
     "//commondeps/cats:cats_effect",
 ]
@@ -12,9 +11,40 @@ scala_library(
     visibility = ["//visibility:public"],
     deps = core_deps,
     exports = [
+      "@maven//:org_scala_lang_scala_library",
       "@maven//:org_tpolecat_doobie_core_2_13",
       "@maven//:org_tpolecat_doobie_free_2_13",
       # macros
       "@maven//:org_tpolecat_typename_2_13",
+    ]
+)
+
+scala_library(
+    name = "postgres",
+    unused_dependency_checker_ignored_targets = core_deps,
+    visibility = ["//visibility:public"],
+    deps = [":core"],
+    exports = [
+      "@maven//:org_tpolecat_doobie_postgres_2_13",
+    ]
+)
+
+scala_library(
+    name = "postgres_circe",
+    unused_dependency_checker_ignored_targets = core_deps,
+    visibility = ["//visibility:public"],
+    deps = [":core", ":postgres"],
+    exports = [
+      "@maven//:org_tpolecat_doobie_postgres_circe_2_13",
+    ]
+)
+
+scala_library(
+    name = "hikari",
+    unused_dependency_checker_ignored_targets = core_deps,
+    visibility = ["//visibility:public"],
+    deps = [":core"],
+    exports = [
+      "@maven//:org_tpolecat_doobie_hikari_2_13",
     ]
 )

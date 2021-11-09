@@ -1,0 +1,17 @@
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+
+fs2_deps = [
+    "//commondeps/cats:cats",
+    "//commondeps/cats:cats_effect",
+]
+
+scala_library(
+    name = "fs2",
+    visibility = ["//visibility:public"],
+    deps = fs2_deps,
+    exports = [
+        "@maven//:org_scala_lang_scala_library",
+        "@maven//:co_fs2_fs2_core_2_13",
+        "@maven//:co_fs2_fs2_io_2_13",
+    ]
+)

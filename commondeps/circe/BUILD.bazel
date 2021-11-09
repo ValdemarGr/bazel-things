@@ -1,0 +1,25 @@
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+
+circe_exports = [
+    "@maven//:io_circe_circe_core_2_13",
+    "@maven//:io_circe_circe_generic_2_13",
+    "@maven//:com_chuusai_shapeless_2_13",
+]
+
+scala_library(
+    name = "circe",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//commondeps/cats:cats",
+    ],
+    exports = circe_exports
+)
+
+scala_library(
+    name = "circe_extras",
+    visibility = ["//visibility:public"],
+    deps = [":circe"],
+    exports = [
+        "@maven//:io_circe_circe_generic_extras_2_13",
+    ]
+)
