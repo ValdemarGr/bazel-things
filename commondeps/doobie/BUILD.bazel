@@ -1,0 +1,19 @@
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+
+core_deps = [
+    "//commondeps/cats:cats",
+    "//commondeps/cats:cats_effect",
+]
+
+scala_library(
+    name = "core",
+    unused_dependency_checker_ignored_targets = core_deps,
+    visibility = ["//visibility:public"],
+    deps = core_deps,
+    exports = [
+      "@maven//:org_tpolecat_doobie_core_2_13",
+      "@maven//:org_tpolecat_doobie_free_2_13",
+      # macros
+      "@maven//:org_tpolecat_typename_2_13",
+    ]
+)

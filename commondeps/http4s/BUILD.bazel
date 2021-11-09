@@ -1,0 +1,34 @@
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+
+core_deps = [
+    "//commondeps/cats:cats",
+    "//commondeps/cats:cats_effect",
+]
+
+scala_library(
+    name = "core",
+    visibility = ["//visibility:public"],
+    deps = core_deps,
+    exports = [
+      "@maven//:org_http4s_http4s_core_2_13",
+      # macros
+      "@maven//:org_typelevel_cats_parse_2_13",
+      "@maven//:com_comcast_ip4s_core_2_13",
+      "@maven//:org_typelevel_literally_2_13",
+      "@maven//:org_typelevel_case_insensitive_2_13",
+    ]
+)
+
+circe_deps = [
+    "@maven//:org_http4s_http4s_jawn_2_13",
+    "@maven//:org_scodec_scodec_bits_2_13",
+] + core_deps
+
+scala_library(
+    name = "circe",
+    visibility = ["//visibility:public"],
+    deps = [":core"],
+    exports = [
+      "@maven//:org_http4s_http4s_circe_2_13",
+    ]
+)
