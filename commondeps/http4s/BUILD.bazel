@@ -10,10 +10,14 @@ core_deps = [
 scala_library(
     name = "core",
     visibility = ["//visibility:public"],
-    deps = core_deps,
+    deps = core_deps + [
+        "@maven//:org_http4s_http4s_core_2_13",
+        "@maven//:org_http4s_http4s_dsl_2_13",
+    ],
     exports = [
         "@maven//:org_scala_lang_scala_library",
         "@maven//:org_http4s_http4s_core_2_13",
+        "@maven//:org_http4s_http4s_dsl_2_13",
         "@maven//:org_http4s_http4s_client_2_13",
         "@maven//:org_http4s_http4s_server_2_13",
         # macros
@@ -22,6 +26,7 @@ scala_library(
         "@maven//:org_typelevel_literally_2_13",
         "@maven//:org_typelevel_case_insensitive_2_13",
         "@maven//:com_chuusai_shapeless_2_13",
+        "@maven//:org_typelevel_vault_2_13",
     ]
 )
 

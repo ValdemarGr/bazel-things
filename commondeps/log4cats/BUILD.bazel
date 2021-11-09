@@ -1,0 +1,22 @@
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+
+log4cats_deps = [
+    "@maven//:org_scala_lang_scala_library",
+    "//commondeps/cats:cats",
+    "//commondeps/cats:cats_effect",
+]
+
+scala_library(
+    name = "log4cats",
+    visibility = ["//visibility:public"],
+    deps = log4cats_deps,
+    runtime_deps = [
+        "@maven//:org_slf4j_slf4j_api",
+        "@maven//:org_slf4j_slf4j_simple",
+    ],
+    exports = [
+        "@maven//:org_typelevel_log4cats_core_2_13",
+        "@maven//:org_typelevel_log4cats_slf4j_2_13",
+        "@maven//:org_slf4j_slf4j_api",
+    ]
+)
