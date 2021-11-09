@@ -1,6 +1,7 @@
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
 
 core_deps = [
+    "@maven//:org_scala_lang_scala_library",
     "//commondeps/cats:cats",
     "//commondeps/cats:cats_effect",
 ]

@@ -1,6 +1,7 @@
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
 
 cats_exports = [
+    "@maven//:org_scala_lang_scala_library",
     "@maven//:org_typelevel_cats_core_2_13",
     "@maven//:org_typelevel_cats_free_2_13",
     "@maven//:org_typelevel_cats_kernel_2_13",
@@ -15,7 +16,10 @@ scala_library(
 scala_library(
     name = "cats_effect",
     visibility = ["//visibility:public"],
-    deps = [":cats"],
+    deps = [
+        "@maven//:org_scala_lang_scala_library",
+        ":cats"
+    ],
     exports = [
         "@maven//:org_typelevel_cats_effect_2_13",
         "@maven//:org_typelevel_cats_effect_kernel_2_13",
