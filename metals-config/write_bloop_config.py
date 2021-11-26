@@ -37,7 +37,16 @@ def scala_paths(magic_string):
 
 bazel_deps = query_bazel_maven_deps()
 maven_deps = fetch_deps(bazel_deps)
-rec_paths = list(set(scala_paths("scala_project_")))
+
+import re
+def maybe_include(x):
+    if re.search("std", x) is not None:
+        return [x + "/src/main/scala", x + "/src/test/scala"]
+    else:
+        return [x + "/src/main/scala/casehub/client"]
+
+rec_paths = [y for x in list(set(scala_paths("scala_project_"))) for y in maybe_include(x)]
+
 asLst = list(maven_deps)
 
 absPath = path + "/" + args.path
@@ -105,7 +114,7 @@ out = {
             absPath + "/main/scala",
             absPath + "/src/test/scala",
             absPath + "/test/scala"
-        ] + [x + "/src/main/scala" for x in rec_paths] + [x + "/src/test/scala" for x in rec_paths],
+        ] + rec_paths,
         "dependencies":[],
         "classpath": nonSources + list(filter(lambda x: "scala-library" in x, comp)),
         "out": path + "/.bloop/" + args.path,
