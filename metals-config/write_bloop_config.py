@@ -43,7 +43,14 @@ def maybe_include(x):
     if re.search("std", x) is not None:
         return [x + "/src/main/scala", x + "/src/test/scala"]
     else:
-        return [x + "/src/main/scala/casehub/client"]
+        prefix = "/src/main/scala/casehub"
+        ds = os.listdir(x + prefix)
+        if len(ds) != 1:
+            print(f"found not exactly 1 directory in {x + prefix}; found {ds}", file=sys.stderr)
+            return []
+        else:
+            d = ds[0]
+            return [x + f"/src/main/scala/casehub/{d}/client"]
 
 rec_paths = [y for x in list(set(scala_paths("scala_project_"))) for y in maybe_include(x)]
 
