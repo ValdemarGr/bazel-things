@@ -10,8 +10,19 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--name", type=str)
 parser.add_argument("--path", type=str)
 
+parser.add_argument("--flags", dest='flags', action='store_true')
+parser.add_argument("--no-flags", dest='flags', action='store_false')
+parser.set_defaults(flags=False)
+
 args = parser.parse_args()
 path = os.getcwd()
+
+flags = []
+if args.flags:
+    d = Path(__file__).resolve().parent.parent
+    import imp
+    flagsModule = imp.load_source('flags', str((d / 'flags' / 'flags.bzl').resolve()))
+    flags = flagsModule.flags
 
 # scan for generated code
 scanned_jars = []
@@ -156,7 +167,7 @@ out = {
             "version": version,
             "options":[
                 f"-Xplugin:{p}" for p in found_plugins
-                ],
+            ] + flags,
             "jars": comp
         },
         "directory" : absPath,

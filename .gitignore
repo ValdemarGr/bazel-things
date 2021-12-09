@@ -1,3 +1,4 @@
+*.pyc
 bazel-bazel-things
 bazel-bin
 bazel-out
