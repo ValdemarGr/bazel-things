@@ -14,6 +14,9 @@ parser.add_argument("--flags", dest='flags', action='store_true')
 parser.add_argument("--no-flags", dest='flags', action='store_false')
 parser.set_defaults(flags=False)
 
+parser.add_argument("--extra-paths", dest='extra_paths', nargs='+', help='Extra paths to search for jars (bazel-bin/<intput>)')
+parser.set_defaults(extra_paths=[])
+
 args = parser.parse_args()
 path = os.getcwd()
 
@@ -31,16 +34,10 @@ p = Path('./bazel-bin')
 if p.is_dir():
     # everything else than external is interesting
     d = p
-    paths = [x for x in p.iterdir() if (p / 'external') != x and d != x]
+    all_jars = [str(x.resolve()) for k in args.extra_paths for x in list((p / k).glob('**/*.jar')) if d != x]
 
-    all_jars = [str(x.resolve()) for path in paths for x in list(path.glob("**/*.jar"))]
     scanned_src_jars = [x for x in all_jars if x.endswith("src.jar")]
     scanned_jars = [x for x in all_jars if not x.endswith("src.jar")]
-    # print(scanned_jars)
-    # print(scanned_src_jars)
-    # scanned_jars2 = [x for x in glob.glob(f"{path}/*.jar") for path in paths]
-    # print(scanned_jars)
-    # print(scanned_jars2)
 
 def query_bazel_maven_deps():
     lines = subprocess.Popen(["bash", "-c", "bazel query \"@maven//:all\" --output=build | grep maven_coordinates | sed 's/.*tes=//' | sed 's/\"].*//'"], stdout=subprocess.PIPE).stdout.readlines()
@@ -109,7 +106,7 @@ def make_artifact(org, pkgName, version, artifacts):
 
 def make_scanned():
     comp = [{"name": str(i), "path": j} for (i, j) in enumerate(scanned_jars)]
-    srcs = [{"name": str(i), "path": j, "classifier": "sources"} for (i, j) in enumerate(scanned_src_jars)]
+    srcs = [{"name": str(len(comp) + i), "path": j, "classifier": "sources"} for (i, j) in enumerate(scanned_src_jars)]
     return make_artifact("scanned_jars", "scanned_jars", "1.0.0", comp + srcs)
 
 def modularize(dep):
@@ -158,7 +155,7 @@ found_plugins = [x for x in nonSources for p in plugins if p in x]
 
                               
 out = {
-    "version": "1.4.0",
+    "version": "1.4.11",
     "project": {
         "name" : args.name,
         "scala": {
