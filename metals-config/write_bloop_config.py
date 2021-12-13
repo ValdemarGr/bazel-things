@@ -50,8 +50,11 @@ parser.set_defaults(gen_path=[])
 parser.add_argument("--magic-import-prefix", dest='magic_import_prefix', type=str, help='A magic prefix which will be looked for when discovering code to include into the compile path (scala sources)')
 parser.set_defaults(magic_import_prefix="scala_project_")
 
-parser.add_argument("--magic-import-path-filter", dest='magic_import_path_filter', nargs='+', help='A string used to exclude certain paths from being included')
-parser.set_defaults(magic_import_path_filter=[])
+parser.add_argument("--magic-import-path-exclude", dest='magic_import_path_exclude', nargs='+', help='Regex used to exclude paths')
+parser.set_defaults(magic_import_path_exclude=[])
+
+parser.add_argument("--magic-import-path-include", dest='magic_import_path_include', nargs='+', help='Regex used to include paths (takes preceedence over exclusion)')
+parser.set_defaults(magic_import_path_include=[])
 
 args = parser.parse_args()
 
@@ -120,17 +123,17 @@ def get_magic_projects(magic_string):
 
     return (formatted, external_paths)
 
-def get_imported_code(external_paths, filt):
+def get_imported_code(external_paths, exclude, include):
     flat_paths = [z for x in external_paths for z in all_dirs_with_scala_code(x)]
 
     def is_in(xs, value):
         for x in xs:
-            if x in value:
-                return False
+            if re.search(x, value) is not None:
+                return True
 
-        return True
+        return False
 
-    filted = [x for x in flat_paths if is_in(filt, str(x))]
+    filted = [x for x in flat_paths if not is_in(exclude, str(x)) or is_in(include, str(x))]
 
     prepped = list(sorted([str(x) for x in filted]))
 
@@ -151,7 +154,7 @@ def get_imported_code(external_paths, filt):
 alert(f"importing projects that contain the magic string '{args.magic_import_prefix}'")
 (fmt, ep) = get_magic_projects(args.magic_import_prefix)
 alert(f"found magic projects: {fmt}")
-imported_dirs = get_imported_code(ep, set(args.magic_import_path_filter))
+imported_dirs = get_imported_code(ep, set(args.magic_import_path_exclude), set(args.magic_import_path_include))
 alert(f"imported {len(imported_dirs)} directories from {len(fmt)} projects")
 # imported code end
 
