@@ -41,11 +41,19 @@ parser.set_defaults(flags=False)
 parser.add_argument("--compiler-version", dest='compiler_version', type=str)
 parser.set_defaults(compiler_version=None)
 
+parser.add_argument("--plugins", dest='plugins', nargs='+', help='Compiler plugins such as kind-projector')
+parser.set_defaults(plugins=[])
+
 parser.add_argument("--gen-path", dest='gen_path', nargs='+', help='Extra paths to search for jars (bazel-bin/<intput>)')
 parser.set_defaults(gen_path=[])
 
+parser.add_argument("--magic-import-prefix", dest='magic_import_prefix', type=str, help='A magic prefix which will be looked for when discovering code to include into the compile path (scala sources)')
+parser.set_defaults(magic_import_prefix="scala_project_")
+
+parser.add_argument("--magic-import-path-filter", dest='magic_import_path_filter', nargs='+', help='A string used to exclude certain paths from being included')
+parser.set_defaults(magic_import_path_filter=[])
+
 args = parser.parse_args()
-path = os.getcwd()
 
 # maven dependencies start
 def fetch_everything():
@@ -112,10 +120,19 @@ def get_magic_projects(magic_string):
 
     return (formatted, external_paths)
 
-def get_imported_code(external_paths):
+def get_imported_code(external_paths, filt):
     flat_paths = [z for x in external_paths for z in all_dirs_with_scala_code(x)]
 
-    prepped = list(sorted([str(x) for x in flat_paths]))
+    def is_in(xs, value):
+        for x in xs:
+            if x in value:
+                return False
+
+        return True
+
+    filted = [x for x in flat_paths if is_in(filt, str(x))]
+
+    prepped = list(sorted([str(x) for x in filted]))
 
     eliminated = []
     prev = None
@@ -131,11 +148,10 @@ def get_imported_code(external_paths):
     return eliminated
     
 
-magic_string = "scala_project_"
-alert(f"importing projects that contain the magic string '{magic_string}'")
-(fmt, ep) = get_magic_projects(magic_string)
+alert(f"importing projects that contain the magic string '{args.magic_import_prefix}'")
+(fmt, ep) = get_magic_projects(args.magic_import_prefix)
 alert(f"found magic projects: {fmt}")
-imported_dirs = get_imported_code(ep)
+imported_dirs = get_imported_code(ep, set(args.magic_import_path_filter))
 alert(f"imported {len(imported_dirs)} directories from {len(fmt)} projects")
 # imported code end
 
@@ -172,7 +188,7 @@ if p.is_dir():
 # compiler version start
 alert(f"has compiler version? {args.compiler_version is not None}")
 def get_scala_version():
-    cmd = """bazel query @maven//:all | grep org_scala_lang_scala_library | grep -Po "\d+_\d+_\d+" | sed 's/_/./g' | head -n 1"""
+    cmd = """bazel query --ui_event_filters=-debug @maven//:all | grep org_scala_lang_scala_library | grep -Po "\d+_\d+_\d+" | sed 's/_/./g' | head -n 1"""
     cmd_fmt = green(bold(f"""'{cmd}'"""))
     alert(f"attempting to find compiler version via the org_scala_lang_scala_library dependency; running command {cmd_fmt}")
     lines = subprocess.Popen(["bash", "-c", cmd], stdout=subprocess.PIPE).stdout.readlines()
@@ -207,7 +223,6 @@ def make_artifact_with_source(name, binary_path, source_path=None):
         "classifier": "sources",
         "path": source_path
     }] if source_path is not None else []
-
     return make_artifact(name, name, "unknown", [
         {
             "name": name,
@@ -236,123 +251,46 @@ all_artifacts = mvn_artifacts + scanned_artifacts
 alert(f"total of {len(all_artifacts)} artifacts")
 # generate dependency json end
 
-exit(0)
+def is_non_source(art):
+    return "classifier" not in art or art["classifier"] != "sources"
 
-def query_bazel_maven_deps():
-    lines = subprocess.Popen(["bash", "-c", "bazel query \"@maven//:all\" --output=build | grep maven_coordinates | sed 's/.*tes=//' | sed 's/\"].*//'"], stdout=subprocess.PIPE).stdout.readlines()
-    formatted = [x.decode("utf-8").strip() for x in lines]
-    print(f"queried {len(formatted)} deps from bazel", file=sys.stderr)
-    return formatted
+# compiler plugins start
+def partition(plugins, art):
+    for p in plugins:
+        if p in art["name"]:
+            ys = [z for z in art["artifacts"] if is_non_source(z)]
+            if len(ys) == 0:
+                alert("expected to find plugin {p} in {art}, but could not find non-source artifact")
+                return []
+            else:
+                return [ys[0]["path"]]
+    return []
 
-def fetch_deps(maven_strings, with_sources=True):
-    e = ""
-    if with_sources:
-        e = f"--sources"
-    sane_strings = " ".join(maven_strings)
-    lines = subprocess.Popen(["bash", "-c", f"coursier fetch --default=true {e} {sane_strings}"], stdout=subprocess.PIPE).stdout.readlines()
-    formatted = [x.decode("utf-8").strip() for x in lines]
-    print(f"found {len(formatted)} jar + source items", file=sys.stderr)
-    return formatted
 
-def scala_paths(magic_string):
-    lines = subprocess.Popen(["bash", "-c", f"""cd {path} && bazel query "deps(...)" --output location | rg "/[^ ]+{magic_string}[^/]+" -o | uniq"""], cwd=path, stdout=subprocess.PIPE).stdout.readlines()
-    scala_output = [x.decode("utf-8").strip() for x in lines if x.decode("utf-8").strip() != path]
-    #dont recurse, that doesnt make sense. All deps are declared locally
-    #return scala_output + [x for next in scala_output for x in scala_paths(next)]
-    return scala_output
+default_plugins = set(["kind-projector", "better-monadic-for"])
+alert(f"generating plugins, defaults are {default_plugins}, provided are {args.plugins}")
+plugins = list(default_plugins) + args.plugins
+plugin_partition = [z for x in all_artifacts for z in partition(plugins, x)]
+alert(f"found {len(plugin_partition)} artifacts:\n{plugin_partition}")
+# compiler plugins end
 
-bazel_deps = query_bazel_maven_deps()
-maven_deps = fetch_deps(bazel_deps)
+# emission start
+alert(f"building final configuration")
+here = Path(f".")
+source_dir = (here / args.path)
 
-import re
-def maybe_include(x):
-    if re.search("std", x) is not None:
-        return [x + "/src/main/scala", x + "/src/test/scala"]
-    else:
-        prefix = "/src/main/scala/casehub"
-        ds = os.listdir(x + prefix)
-        if len(ds) != 1:
-            print(f"found not exactly 1 directory in {x + prefix}; found {ds}", file=sys.stderr)
-            return []
-        else:
-            d = ds[0]
-            return [x + f"/src/main/scala/casehub/{d}/client"]
+sources = [str(source_dir.resolve())] + imported_dirs
+directory = str(source_dir.resolve())
+workspace_dir = str(here.resolve())
+classpath = [dep["path"] for art in all_artifacts for dep in art["artifacts"] if is_non_source(dep)]
+bloop_dir = here / ".bloop" / args.path
+out_dir = str(bloop_dir.resolve())
+scala_major_minor = ".".join(compiler_version.split(".")[:-1])
+classes_dir = str((bloop_dir / f"scala-{scala_major_minor}" / "classes").resolve())
 
-rec_paths = [y for x in list(set(scala_paths("scala_project_"))) for y in maybe_include(x)]
+compiler_deps = ["scala-library", "scala-compiler", "scala-reflect"]
+compiler_paths = [dep["path"] for art in mvn_artifacts for dep in art["artifacts"] for comp_dep_name in compiler_deps if is_non_source(dep) and comp_dep_name in dep["name"]]
 
-asLst = list(maven_deps)
-
-absPath = path + "/" + args.path
-
-version = [x for x in bazel_deps if "scala-library" in x][0].split(":")[2]
-only_comp = fetch_deps([f"org.scala-lang:scala-compiler:{version}"], with_sources=False)
-comp = [x for x in only_comp if "scala" in x]
-print(f"using compiler items {comp}", file=sys.stderr)
-
-sources = list(filter(lambda x: x.endswith("sources.jar"), asLst))
-nonSources = list(filter(lambda x: not x.endswith("sources.jar"), asLst))
-
-plugins = set(["kind-projector", "better-monadic-for"])
-
-def make_artifact(org, pkgName, version, artifacts):
-    return {
-            "organization": org,
-            "name": pkgName,
-            "version": version,
-            "configurations": "default",
-            "artifacts": artifacts
-    }
-
-def make_scanned():
-    comp = [{"name": str(i), "path": j} for (i, j) in enumerate(scanned_jars)]
-    srcs = [{"name": str(len(comp) + i), "path": j, "classifier": "sources"} for (i, j) in enumerate(scanned_src_jars)]
-    return make_artifact("scanned_jars", "scanned_jars", "1.0.0", comp + srcs)
-
-def modularize(dep):
-    toSearch = "maven2/"
-    strippedStr = dep[dep.find(toSearch)+len(toSearch):]
-    removedJar = strippedStr[:strippedStr.rfind("/")]
-    ver = removedJar[removedJar.rfind("/") + 1:]
-    rest = removedJar[:removedJar.rfind("/")]
-    pkgName = rest[rest.rfind("/") + 1:]
-    org = rest[:rest.rfind("/")].replace("/", ".")
-
-    return make_artifact(org, pkgName, version, [
-        {
-            "name": pkgName,
-            "path": dep
-        },
-        {
-            "name": pkgName,
-            "classifier": "sources",
-            "path": dep[:-4] + "-sources.jar"
-        }
-    ])
-
-    # return {
-    #         "organization": org,
-    #         "name": pkgName,
-    #         "version": ver,
-    #         "configurations": "default",
-    #         "artifacts": [
-    #             {
-    #                 "name": pkgName,
-    #                 "path": dep
-    #             },
-    #             {
-    #                 "name": pkgName,
-    #                 "classifier": "sources",
-    #                 "path": dep[:-4] + "-sources.jar"
-    #             }
-    #         ]
-    # }
-
-def first_or(s, d):
-    return next((l for l in nonSources if s in l and False), d)
-
-found_plugins = [x for x in nonSources for p in plugins if p in x]
-
-                              
 out = {
     "version": "1.4.11",
     "project": {
@@ -360,29 +298,177 @@ out = {
         "scala": {
             "organization": "org.scala-lang",
             "name": "scala-compiler",
-            "version": version,
+            "version": compiler_version,
             "options":[
-                f"-Xplugin:{p}" for p in found_plugins
+                f"-Xplugin:{p}" for p in plugin_partition
             ] + flags,
-            "jars": comp
+            "jars": compiler_paths
         },
-        "directory" : absPath,
-        "workspaceDir" : path,
-        "sources" : [
-            absPath + "/src/main/scala",
-            absPath + "/main/scala",
-            absPath + "/src/test/scala",
-            absPath + "/test/scala"
-        ] + rec_paths,
+        "directory" : directory,
+        "workspaceDir" : workspace_dir,
+        "sources" : sources,
         "dependencies":[],
-        "classpath": nonSources + list(filter(lambda x: "scala-library" in x, comp)) + scanned_jars,
-        "out": path + "/.bloop/" + args.path,
-        "classesDir": path + "/.bloop/" + args.path + "/scala-" + ".".join(version.split(".")[:-1]) + "/classes",
+        "classpath": classpath,
+        "out": out_dir,
+        "classesDir": classes_dir,
         "resolution": {
-            "modules": list(map(lambda x: modularize(x), nonSources)) + [make_scanned()]
+            "modules": all_artifacts
         },
         "tags": ["library"]
     }
 }
 
 print(json.dumps(out, indent=4, sort_keys=True))
+# emission end
+
+exit(0)
+#path = os.getcwd()
+
+#def query_bazel_maven_deps():
+#    lines = subprocess.Popen(["bash", "-c", "bazel query \"@maven//:all\" --output=build | grep maven_coordinates | sed 's/.*tes=//' | sed 's/\"].*//'"], stdout=subprocess.PIPE).stdout.readlines()
+#    formatted = [x.decode("utf-8").strip() for x in lines]
+#    print(f"queried {len(formatted)} deps from bazel", file=sys.stderr)
+#    return formatted
+
+#def fetch_deps(maven_strings, with_sources=True):
+#    e = ""
+#    if with_sources:
+#        e = f"--sources"
+#    sane_strings = " ".join(maven_strings)
+#    lines = subprocess.Popen(["bash", "-c", f"coursier fetch --default=true {e} {sane_strings}"], stdout=subprocess.PIPE).stdout.readlines()
+#    formatted = [x.decode("utf-8").strip() for x in lines]
+#    print(f"found {len(formatted)} jar + source items", file=sys.stderr)
+#    return formatted
+
+#def scala_paths(magic_string):
+#    lines = subprocess.Popen(["bash", "-c", f"""cd {path} && bazel query "deps(...)" --output location | rg "/[^ ]+{magic_string}[^/]+" -o | uniq"""], cwd=path, stdout=subprocess.PIPE).stdout.readlines()
+#    scala_output = [x.decode("utf-8").strip() for x in lines if x.decode("utf-8").strip() != path]
+#    #dont recurse, that doesnt make sense. All deps are declared locally
+#    #return scala_output + [x for next in scala_output for x in scala_paths(next)]
+#    return scala_output
+
+#bazel_deps = query_bazel_maven_deps()
+#maven_deps = fetch_deps(bazel_deps)
+
+#import re
+#def maybe_include(x):
+#    if re.search("std", x) is not None:
+#        return [x + "/src/main/scala", x + "/src/test/scala"]
+#    else:
+#        prefix = "/src/main/scala/casehub"
+#        ds = os.listdir(x + prefix)
+#        if len(ds) != 1:
+#            print(f"found not exactly 1 directory in {x + prefix}; found {ds}", file=sys.stderr)
+#            return []
+#        else:
+#            d = ds[0]
+#            return [x + f"/src/main/scala/casehub/{d}/client"]
+
+#rec_paths = [y for x in list(set(scala_paths("scala_project_"))) for y in maybe_include(x)]
+
+#asLst = list(maven_deps)
+
+#absPath = path + "/" + args.path
+
+#version = [x for x in bazel_deps if "scala-library" in x][0].split(":")[2]
+#only_comp = fetch_deps([f"org.scala-lang:scala-compiler:{version}"], with_sources=False)
+#comp = [x for x in only_comp if "scala" in x]
+#print(f"using compiler items {comp}", file=sys.stderr)
+
+#sources = list(filter(lambda x: x.endswith("sources.jar"), asLst))
+#nonSources = list(filter(lambda x: not x.endswith("sources.jar"), asLst))
+
+#plugins = set(["kind-projector", "better-monadic-for"])
+
+#def make_artifact(org, pkgName, version, artifacts):
+#    return {
+#            "organization": org,
+#            "name": pkgName,
+#            "version": version,
+#            "configurations": "default",
+#            "artifacts": artifacts
+#    }
+
+#def make_scanned():
+#    comp = [{"name": str(i), "path": j} for (i, j) in enumerate(scanned_jars)]
+#    srcs = [{"name": str(len(comp) + i), "path": j, "classifier": "sources"} for (i, j) in enumerate(scanned_src_jars)]
+#    return make_artifact("scanned_jars", "scanned_jars", "1.0.0", comp + srcs)
+
+#def modularize(dep):
+#    toSearch = "maven2/"
+#    strippedStr = dep[dep.find(toSearch)+len(toSearch):]
+#    removedJar = strippedStr[:strippedStr.rfind("/")]
+#    ver = removedJar[removedJar.rfind("/") + 1:]
+#    rest = removedJar[:removedJar.rfind("/")]
+#    pkgName = rest[rest.rfind("/") + 1:]
+#    org = rest[:rest.rfind("/")].replace("/", ".")
+
+#    return make_artifact(org, pkgName, version, [
+#        {
+#            "name": pkgName,
+#            "path": dep
+#        },
+#        {
+#            "name": pkgName,
+#            "classifier": "sources",
+#            "path": dep[:-4] + "-sources.jar"
+#        }
+#    ])
+
+#    # return {
+#    #         "organization": org,
+#    #         "name": pkgName,
+#    #         "version": ver,
+#    #         "configurations": "default",
+#    #         "artifacts": [
+#    #             {
+#    #                 "name": pkgName,
+#    #                 "path": dep
+#    #             },
+#    #             {
+#    #                 "name": pkgName,
+#    #                 "classifier": "sources",
+#    #                 "path": dep[:-4] + "-sources.jar"
+#    #             }
+#    #         ]
+#    # }
+
+#def first_or(s, d):
+#    return next((l for l in nonSources if s in l and False), d)
+
+#found_plugins = [x for x in nonSources for p in plugins if p in x]
+
+                              
+#out = {
+#    "version": "1.4.11",
+#    "project": {
+#        "name" : args.name,
+#        "scala": {
+#            "organization": "org.scala-lang",
+#            "name": "scala-compiler",
+#            "version": version,
+#            "options":[
+#                f"-Xplugin:{p}" for p in found_plugins
+#            ] + flags,
+#            "jars": comp
+#        },
+#        "directory" : absPath,
+#        "workspaceDir" : path,
+#        "sources" : [
+#            absPath + "/src/main/scala",
+#            absPath + "/main/scala",
+#            absPath + "/src/test/scala",
+#            absPath + "/test/scala"
+#        ] + rec_paths,
+#        "dependencies":[],
+#        "classpath": nonSources + list(filter(lambda x: "scala-library" in x, comp)) + scanned_jars,
+#        "out": path + "/.bloop/" + args.path,
+#        "classesDir": path + "/.bloop/" + args.path + "/scala-" + ".".join(version.split(".")[:-1]) + "/classes",
+#        "resolution": {
+#            "modules": list(map(lambda x: modularize(x), nonSources)) + [make_scanned()]
+#        },
+#        "tags": ["library"]
+#    }
+#}
+
+#print(json.dumps(out, indent=4, sort_keys=True))
