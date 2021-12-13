@@ -31,8 +31,10 @@ def stop(msg):
     exit(-1)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--name", type=str)
-parser.add_argument("--path", type=str)
+parser.add_argument("--name", type=str, required=True, help='The name of the compilation target')
+parser.add_argument("--path", type=str, required=True, help='The directory to put files in \'./bloop/path\' and root directory, commonly \'src\'')
+
+parser.add_argument("--sourcedir", dest='sourcedirs', nargs='+', help='The relative roots of source dirs, commonly \'src/main/scala\' and \'src/test/scala\'', required=True)
 
 parser.add_argument("--flags", dest='flags', action='store_true')
 parser.add_argument("--no-flags", dest='flags', action='store_false')
@@ -280,10 +282,9 @@ alert(f"found {len(plugin_partition)} artifacts:\n{plugin_partition}")
 # emission start
 alert(f"building final configuration")
 here = Path(f".")
-source_dir = (here / args.path)
 
-sources = [str(source_dir.resolve())] + imported_dirs
-directory = str(source_dir.resolve())
+sources = [str((here / x).resolve()) for x in args.sourcedirs] + imported_dirs
+directory = str((here / args.path).resolve())
 workspace_dir = str(here.resolve())
 classpath = [dep["path"] for art in all_artifacts for dep in art["artifacts"] if is_non_source(dep)]
 bloop_dir = here / ".bloop" / args.path
