@@ -1,4 +1,5 @@
 # Bazel things
+# Everything below might be depricated, this needs updating TODO
 ## Dependencies
 This is a wrapper for maven dependencies which just exposes dependencies in a composable manner.
 ### Usage
