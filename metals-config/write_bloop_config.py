@@ -112,8 +112,22 @@ def all_dirs_with_scala_code(base_path):
     all_interesting_dirs = [d.resolve().parent for d in all_files_for_path]
     return all_interesting_dirs
 
+cmd = """bazel --version | awk ' { print $2 } '"""
+cmd_fmt = green(bold(f"""'{cmd}'"""))
+alert(f"checking the bazel version to determine what commands to run; running cmd {cmd_fmt}")
+lines = subprocess.Popen(["bash", "-c", cmd], stdout=subprocess.PIPE).stdout.readlines()
+formatted = [x.decode("utf-8").strip() for x in lines]
+bazel_version = formatted[0]
+major = int(bazel_version.split(".")[0])
+alert(f"bazel version is {major}")
+
 def get_magic_projects(magic_string):
-    cmd = f"""bazel query --ui_event_filters=-debug //external:all | sed 's/\/\/external://g' | grep {magic_string}"""
+    if major == 4:
+        cmd = f"""bazel query --ui_event_filters=-debug //external:all | sed 's/\/\/external://g' | grep {magic_string}"""
+    elif major == 5:
+        cmd = f"""bazel query --ui_event_filters=-debug \"deps(//...)\" | sed 's/\/\/external://g' | sed 's/\/.*//g' | grep {magic_string} | sort | uniq | sed 's/@//g'"""
+    else:
+        raise Exception(f"unsupported bazel version {major}")
     cmd_fmt = green(bold(f"""'{cmd}'"""))
     alert(f"getting all projects in external; running command {cmd_fmt}")
     lines = subprocess.Popen(["bash", "-c", cmd], stdout=subprocess.PIPE).stdout.readlines()
