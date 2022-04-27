@@ -17,6 +17,7 @@ scala_toolchain(
     strict_deps_mode = "error",
     unused_dependency_checker_mode = "error", 
     dependency_tracking_method = "ast",
+    enable_diagnotics_report = True,
     dependency_mode = "plus-one",
 )
 
