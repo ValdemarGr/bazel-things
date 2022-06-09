@@ -52,6 +52,9 @@ parser.set_defaults(gen_path=[])
 parser.add_argument("--magic-import-prefix", dest='magic_import_prefix', type=str, help='A magic prefix which will be looked for when discovering code to include into the compile path (scala sources)')
 parser.set_defaults(magic_import_prefix="scala_project_")
 
+parser.add_argument("--extra-imports", dest="extra_imports", nargs='+', help='Extra paths (folders) to search for scala sources')
+parser.set_defaults(extra_imports=[])
+
 parser.add_argument("--magic-import-path-exclude", dest='magic_import_path_exclude', nargs='+', help='Regex used to exclude paths')
 parser.set_defaults(magic_import_path_exclude=[])
 
@@ -121,6 +124,12 @@ bazel_version = formatted[0]
 major = int(bazel_version.split(".")[0])
 alert(f"bazel version is {major}")
 
+def add_external_path(xs):
+    dirname = Path(".").resolve().name
+    external_dir = Path(f"./bazel-{dirname}/external").resolve()
+    external_paths = [Path(external_dir / d) for d in xs]
+    return external_paths
+
 def get_magic_projects(magic_string):
     if major == 4:
         cmd = f"""bazel query --ui_event_filters=-debug //external:all | sed 's/\/\/external://g' | grep {magic_string}"""
@@ -132,10 +141,8 @@ def get_magic_projects(magic_string):
     alert(f"getting all projects in external; running command {cmd_fmt}")
     lines = subprocess.Popen(["bash", "-c", cmd], stdout=subprocess.PIPE).stdout.readlines()
     formatted = [x.decode("utf-8").strip() for x in lines]
-
-    dirname = Path(".").resolve().name
-    external_dir = Path(f"./bazel-{dirname}/external").resolve()
-    external_paths = [Path(external_dir / d) for d in formatted]
+    
+    external_paths = add_external_path(formatted)
 
     return (formatted, external_paths)
 
@@ -170,8 +177,9 @@ def get_imported_code(external_paths, exclude, include):
 alert(f"importing projects that contain the magic string '{args.magic_import_prefix}'")
 (fmt, ep) = get_magic_projects(args.magic_import_prefix)
 alert(f"found magic projects: {fmt}")
-imported_dirs = get_imported_code(ep, set(args.magic_import_path_exclude), set(args.magic_import_path_include))
-alert(f"imported {len(imported_dirs)} directories from {len(fmt)} projects")
+extras = add_external_path(args.extra_imports)
+imported_dirs = get_imported_code(ep + extras, set(args.magic_import_path_exclude), set(args.magic_import_path_include))
+alert(f"imported {len(imported_dirs)} directories from {len(fmt)} magic projects and {extras} extra imports")
 # imported code end
 
 # flags begin
