@@ -315,7 +315,8 @@ scala_major_minor = ".".join(compiler_version.split(".")[:-1])
 classes_dir = str((bloop_dir / f"scala-{scala_major_minor}" / "classes").resolve())
 
 compiler_deps = ["scala-library", "scala-compiler", "scala-reflect"]
-compiler_paths = [dep["path"] for art in mvn_artifacts for dep in art["artifacts"] for comp_dep_name in compiler_deps if is_non_source(dep) and comp_dep_name in dep["name"]]
+compiler_paths_ = [dep["path"] for art in mvn_artifacts for dep in art["artifacts"] for comp_dep_name in compiler_deps if is_non_source(dep) and comp_dep_name in dep["name"]]
+compiler_paths = [c.replace("2.13.8", compiler_version) for c in compiler_paths_]
 
 out = {
     "version": "1.4.11",
