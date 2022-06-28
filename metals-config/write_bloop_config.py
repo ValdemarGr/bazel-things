@@ -319,7 +319,7 @@ compiler_paths_ = [dep["path"] for art in mvn_artifacts for dep in art["artifact
 compiler_paths = [c.replace("2.13.8", compiler_version) for c in compiler_paths_]
 
 out = {
-    "version": "1.4.11",
+    "version": "1.5.0",
     "project": {
         "name" : args.name,
         "scala": {
