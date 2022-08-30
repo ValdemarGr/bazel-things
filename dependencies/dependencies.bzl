@@ -85,4 +85,5 @@ def install_dependencies(deps, scala_versions, use_pinned=False):
         generate_compat_repositories = True,
         fail_if_repin_required = fail_if_repin_required,
         maven_install_json = maven_install_json,
+        version_conflict_policy = "pinned"
     )
