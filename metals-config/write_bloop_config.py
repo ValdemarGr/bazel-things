@@ -34,6 +34,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--name", type=str, required=True, help='The name of the compilation target')
 parser.add_argument("--path", type=str, required=True, help='The directory to put files in \'./bloop/path\' and root directory, commonly \'src\'')
 
+parser.add_argument("--bloop-version", dest='bloop_version', type=str, help='The bloop version')
+parser.set_defaults(bloop_version='1.5.0')
+
 parser.add_argument("--sourcedir", dest='sourcedirs', nargs='+', help='The relative roots of source dirs, commonly \'src/main/scala\' and \'src/test/scala\'', required=True)
 
 parser.add_argument("--flags", dest='flags', action='store_true')
@@ -319,7 +322,7 @@ compiler_paths_ = [dep["path"] for art in mvn_artifacts for dep in art["artifact
 compiler_paths = [c.replace("2.13.8", compiler_version) for c in compiler_paths_]
 
 out = {
-    "version": "1.5.0",
+    "version": args.bloop_version,
     "project": {
         "name" : args.name,
         "scala": {
