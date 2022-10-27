@@ -43,6 +43,9 @@ parser.add_argument("--flags", dest='flags', action='store_true')
 parser.add_argument("--no-flags", dest='flags', action='store_false')
 parser.set_defaults(flags=False)
 
+parser.add_argument("--exclude-flag", dest='exclude_flag', nargs='+')
+parser.set_defaults(exclude_flag=[])
+
 parser.add_argument("--compiler-version", dest='compiler_version', type=str)
 parser.set_defaults(compiler_version=None)
 
@@ -194,6 +197,9 @@ if args.flags:
     import imp
     flagsModule = imp.load_source('flags', str((d / 'flags' / 'flags.bzl').resolve()))
     flags = flagsModule.flags
+    exclusion_set = set(args.exclude_flag)
+    with_exclusions = [x for x in flags if x not in exclusion_set]
+    flags = with_exclusions
     alert(f"using flags {flags}")
 # flags end
 
