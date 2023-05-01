@@ -139,7 +139,7 @@ def add_external_path(xs):
 def get_magic_projects(magic_string):
     if major == 4:
         cmd = f"""bazel query --ui_event_filters=-debug //external:all | sed 's/\/\/external://g' | grep {magic_string}"""
-    elif major == 5:
+    elif major == 5 or major == 6:
         cmd = f"""bazel query --ui_event_filters=-debug \"deps(//...)\" | sed 's/\/\/external://g' | sed 's/\/.*//g' | grep {magic_string} | sort | uniq | sed 's/@//g'"""
     else:
         raise Exception(f"unsupported bazel version {major}")
