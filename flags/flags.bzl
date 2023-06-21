@@ -1,6 +1,21 @@
 flags = [
   "-encoding",
   "UTF-8",
+  "-deprecation",
+  "feature",
+  "-unchecked",
+  "-Wunused:implicits",
+  "-Wunused:explicits",
+  "-Wunused:imports",
+  "-Wunused:locals",
+  "-Wunused:params",
+  "-Wunused:privates",
+  "-Wvalue-discard"
+]
+
+2_13_flags = [
+  "-encoding",
+  "UTF-8",
   # "-Vimplicits",
   "-Wdead-code",
   "-Wextra-implicit",

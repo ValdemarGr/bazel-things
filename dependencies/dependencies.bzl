@@ -29,7 +29,11 @@ _java_dependency_tag = "java_dependency"
 
 def _add_scala_vertag(name, tag, scala_versions):
   if (_scala_dependency_tag == tag):
-    return name + "_" + scala_versions["major"] + "." + scala_versions["minor"]
+    prefix = name + "_" + scala_versions["major"] 
+    if (scala_versions["major"] == "2"):
+      return prefix + "." + scala_versions["minor"]
+    else:
+      return prefix
   elif (_scala_fullver_dependency_tag == tag):
     return name + "_" + scala_versions["major"] + "." + scala_versions["minor"] + "." + scala_versions["patch"]
   else:
