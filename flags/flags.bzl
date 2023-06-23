@@ -2,6 +2,7 @@ flags = [
   "-encoding",
   "UTF-8",
   # "-Vimplicits",
+  "-Wconf:cat=other-implicit-type:s",
   "-Wdead-code",
   "-Wextra-implicit",
   "-Wunused:explicits",
