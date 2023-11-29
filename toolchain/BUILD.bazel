@@ -19,6 +19,7 @@ scala_toolchain(
     dependency_tracking_method = "ast",
     enable_diagnostics_report = True,
     dependency_mode = "plus-one",
+    enable_semanticdb = True
 )
 
 toolchain(
