@@ -1,0 +1,6 @@
+config_setting(
+  name = "no_fatal_warnings",
+  define_values = {
+    "no_fatal_warnings": "true"
+  }
+)

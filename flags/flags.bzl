@@ -1,4 +1,4 @@
-flags = [
+_flags = [
   "-encoding",
   "UTF-8",
   # "-Vimplicits",
@@ -14,7 +14,7 @@ flags = [
   "-Wunused:privates",
   "-Wvalue-discard",
   "-Xcheckinit",
-  "-Xfatal-warnings",
+  # "-Xfatal-warnings",
   "-Xlint:-byname-implicit",
   "-Xlint:adapted-args",
   "-Xlint:doc-detached",
@@ -44,6 +44,11 @@ flags = [
   # "-Vtype-diffs",
   # "-Xlint:strict-unsealed-patmat", 
 ]
+
+flags = _flags + select({
+  "@scala_things//flagcfg:no_fatal_warnings": [],
+  "//conditions:default": ["-Xfatal-warnings"]
+})
 
 def unused_targets_ignored(scala_version):
   http4s_uri_macro = [
